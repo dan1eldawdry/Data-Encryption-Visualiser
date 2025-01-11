@@ -2,12 +2,12 @@
 **Goal:** Establish a clear roadmap and project foundation.
 
 ### Week 1: Project Definition
-* Research encryption methods to visualize (e.g., Caesar cipher, RSA, AES).
+* Research encryption methods to visualise (e.g., Caesar cipher, RSA, AES).
 * Define the SPA's core features:
   * Interactive input for encryption/decryption.
   * Step-by-step visual representation.
   * A clean, responsive UI.
-* Sketch wireframes and basic layouts for the UI.
+* Sketch basic layouts for the UI.
 
 ### Week 2: Development Environment Setup
 * Create a Git repository for version control.
@@ -18,12 +18,12 @@
 * Build a static HTML skeleton to be used as the base template.
 
 ## Phase 2: Core Features Implementation (Weeks 3–10)
-**Goal:** Build and test the encryption and visualization features.
+**Goal:** Build and test the encryption and visualisation features.
 
-### Week 3: Input and Output Components
+### Week 3: Inputs and Outputs
 * Create text input fields for user data (plaintext or ciphertext).
 * Add dropdowns or buttons to select encryption algorithms.
-* Style the input/output components with CSS.
+* Style the inputs/outputs with CSS.
 
 ### Week 4: Basic Algorithm Implementation
 * Implement a simple algorithm (e.g., Caesar cipher) in JavaScript.
