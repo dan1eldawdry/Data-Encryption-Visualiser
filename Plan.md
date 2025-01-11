@@ -2,7 +2,7 @@
 **Goal:** Establish a clear roadmap and project foundation.
 
 ### Week 1: Project Definition
-* Research encryption methods to visualise (e.g., Caesar cipher, RSA, AES).
+* Research encryption methods to visualise (e.g. Caesar cipher, RSA, AES).
 * Define the SPA's core features:
   * Interactive input for encryption/decryption.
   * Step-by-step visual representation.
@@ -26,54 +26,54 @@
 * Style the inputs/outputs with CSS.
 
 ### Week 4: Basic Algorithm Implementation
-* Implement a simple algorithm (e.g., Caesar cipher) in JavaScript.
+* Implement a simple algorithm (e.g. Caesar cipher) in JavaScript.
 * Write functions for encryption and decryption logic.
 * Display results dynamically in the output section.
 
-### Weeks 5–6: Interactive Visualization for the First Algorithm
+### Weeks 5–6: Interactive Visualisation for the First Algorithm
 * Create a visual representation of the Caesar cipher:
   * Highlight letters in the input text.
   * Display the shifted characters.
   * Show the encryption process step-by-step.
-* Add animation using CSS and JavaScript for a smooth user experience.
-* Test user interaction (e.g., pausing/replaying visualization).
+* Add animation using CSS and JavaScript.
+* Test user interaction (e.g. pausing/replaying visualisation).
 
 ### Weeks 7–8: Additional Encryption Algorithms
-* Add support for one or two more algorithms, such as:
+* Add one or two more algorithms, such as:
   * Substitution cipher.
   * RSA (visualize modular arithmetic steps).
-* Create distinct visualization styles for each algorithm.
+* Create unique visualisation styles for each algorithm.
 
 ### Weeks 9–10: Responsive Design and Accessibility
 * Use CSS media queries to make the SPA mobile-friendly.
-* Test and refine the design for accessibility (e.g., proper labels, ARIA roles).
+* Test and refine the design for accessibility (e.g. proper labels, ARIA roles).
 
 ## Phase 3: Advanced Features and Polish (Weeks 11–14)
-**Goal:** Enhance functionality and refine the user experience.
+**Goal:** Enhance functionality and refine user experience.
 
 ### Weeks 11–12: Step Control and Playback
-* Add controls to pause, play, and step through the visualization process.
+* Add controls to pause, play, and step through the visualisation process.
 * Implement a progress bar or timeline for visual progress tracking.
 
-### Week 13: Customization Options
-* Allow users to set parameters for algorithms (e.g., shift value for Caesar cipher).
+### Week 13: Customisation Options
+* Allow users to set parameters for algorithms (e.g. shift value for Caesar cipher).
 * Add input validation for user-entered values.
   
 ### Week 14: Code Cleanup and Refactoring
-* Optimize JavaScript code for readability and performance.
-* Modularize functions into reusable components.
+* Optimise JavaScript code for readability and performance.
+* Modularise functions into reusable modules.
 
 ## Phase 4: Testing and Deployment (Weeks 15–18)
-**Goal:** Finalize, test, and deploy the application.
+**Goal:** Finalise, test, and deploy the application.
 
 ### Week 15: Testing
-* Conduct unit tests for encryption and decryption functions.
+* Unit tests for encryption and decryption functions.
 * Perform user testing to ensure intuitive functionality.
 * Fix bugs and edge cases.
 
 ### Week 16: Final UI Enhancements
-* Add finishing touches to the UI (e.g., animations, color schemes).
-* Ensure the SPA aligns with the initial vision and wireframes.
+* Add finishing touches to the UI (e.g. animations, color schemes).
+* Ensure the SPA aligns with the initial vision.
 
 ### Week 17: Documentation
 * Write clear documentation for the SPA, including:
@@ -82,11 +82,11 @@
   * Known limitations and potential improvements.
     
 ### Week 18: Deployment and Feedback
-* Deploy the SPA using GitHub Pages or another hosting platform.
-* Collect feedback and note potential enhancements for future updates.
+* Deploy the SPA.
+* Collect feedback for future updates.
   
 ## Deliverables by the End of Each Phase
 1. **Phase 1:** Wireframes, project structure, and static HTML template.
-2. **Phase 2:** Fully functional encryption and visualization for multiple algorithms.
-3. **Phase 3:** Polished SPA with playback controls and customization features.
+2. **Phase 2:** Fully functional encryption and visualisation for multiple algorithms.
+3. **Phase 3:** Polished SPA with playback controls and customisation features.
 4. **Phase 4:** Tested and deployed application with documentation.
