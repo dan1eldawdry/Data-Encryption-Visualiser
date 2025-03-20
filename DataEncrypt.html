@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Encryption Visualizer</title>
+    <title>Data Encryption/Decryption Visualiser</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,13 +12,15 @@
             padding: 20px;
             line-height: 1.6;
         }
-        .wrapper {
+
+        .main-container {
             background-color: #f4f4f4;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .algorithm-btn {
+
+        .cipher-btn {
             margin: 5px;
             padding: 10px;
             background-color: #e0e0e0;
@@ -27,11 +29,36 @@
             border-radius: 4px;
             transition: all 0.3s ease;
         }
-        .algorithm-btn.active {
+
+        .cipher-btn.active {
             background-color: #4CAF50;
             color: white;
-            transform: scale(1.05);
         }
+
+        .switch-container {
+            display: flex;
+            margin: 20px 0;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            width: 300px;
+        }
+
+        .switch-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .switch-btn.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
         input, button {
             margin: 10px 0;
             padding: 8px;
@@ -39,11 +66,13 @@
             border-radius: 4px;
             transition: border-color 0.3s ease;
         }
+
         input:focus {
             outline: none;
             border-color: #4CAF50;
         }
-        #outputBox {
+
+        #resultBox {
             background-color: #fff;
             border: 1px solid #ddd;
             padding: 15px;
@@ -51,11 +80,13 @@
             border-radius: 4px;
             min-height: 50px;
         }
-        .tooltip {
+
+        .hint-container {
             position: relative;
             display: inline-block;
         }
-        .tooltip .tooltiptext {
+
+        .hint-container .hint-text {
             visibility: hidden;
             width: 200px;
             background-color: #333;
@@ -69,77 +100,42 @@
             left: 50%;
             margin-left: -100px;
             opacity: 0;
-            transition: opacity 0.3s, visibility 0.3s;
+            transition: opacity 0.3s;
             font-size: 14px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .tooltip:hover .tooltiptext {
+
+        .hint-container:hover .hint-text {
             visibility: visible;
             opacity: 1;
         }
+
         .highlight {
-            background-color: #ffeb3b;
+            background-color: #f5ff3b;
             padding: 2px 4px;
             border-radius: 3px;
-            transition: background-color 0.3s;
-            animation: pulse 1s infinite;
         }
-        .explanationBox {
-            background-color: #e3f2fd;
+
+        .info-panel {
+            background-color: #cae5ce;
             padding: 15px;
             margin: 15px 0;
-            border-left: 4px solid #2196f3;
+            border-left: 4px solid #15da4a;
             border-radius: 4px;
-            display: none;
-            animation: slideIn 0.3s ease-out;
         }
-        .animationContainer {
-            height: 120px;
-            margin: 15px 0;
-            position: relative;
-            background-color: #fff;
-            border-radius: 4px;
-            padding: 10px;
-            overflow: hidden;
-        }
-        .charBlock {
+
+        .char-block {
             display: inline-block;
             padding: 12px;
             margin: 4px;
             background: #e0e0e0;
             border-radius: 4px;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .charBlock.shifted {
+
+        .char-block.changed {
             background: #81c784;
-            transform: translateY(-10px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-        @keyframes slideIn {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .stepCounter {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #4CAF50;
-            color: white;
-            padding: 10px;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            text-align: center;
-            line-height: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .algorithmInfo {
+
+        .algo-description {
             margin: 15px 0;
             padding: 15px;
             background: #fff;
@@ -149,618 +145,409 @@
     </style>
 </head>
 <body>
-    <div class="wrapper">
-        <h2>Data Encryption Visualizer</h2>
+    <div class="main-container">
+        <h2>Data Encryption/Decryption Visualiser</h2>
+        
+        <div class="switch-container">
+            <button class="switch-btn active" data-mode="encrypt">Encrypt</button>
+            <button class="switch-btn" data-mode="decrypt">Decrypt</button>
+        </div>
         
         <div>
-            <h3>Choose Encryption Algorithm</h3>
-            <button class="algorithm-btn active tooltip" data-algorithm="caesar">
+            <h3>Choose Cipher Type</h3>
+            <button class="cipher-btn active hint-container" data-algorithm="caesar">
                 Caesar Cipher
-                <span class="tooltiptext">Shift each letter by a fixed number of positions</span>
+                <span class="hint-text">Shift each letter forward or backward in the alphabet</span>
             </button>
-            <button class="algorithm-btn tooltip" data-algorithm="vigenere">
-                Vigenère Cipher
-                <span class="tooltiptext">Polyalphabetic substitution using a keyword</span>
+            <button class="cipher-btn hint-container" data-algorithm="vigenere">
+                Vigenere Cipher
+                <span class="hint-text">Uses a keyword to create multiple shift values</span>
             </button>
-            <button class="algorithm-btn tooltip" data-algorithm="rsa">
-                RSA (Simplified)
-                <span class="tooltiptext">Public-key cryptography using prime numbers</span>
-            </button>
-            <button class="algorithm-btn tooltip" data-algorithm="aes">
-                AES (Conceptual)
-                <span class="tooltiptext">Advanced Encryption Standard block cipher</span>
-            </button>
-            <button class="algorithm-btn tooltip" data-algorithm="substitution">
+            <button class="cipher-btn hint-container" data-algorithm="substitution">
                 Substitution Cipher
-                <span class="tooltiptext">Replace each letter with a different letter using a key</span>
+                <span class="hint-text">Swaps each letter with a different one using a key</span>
             </button>
         </div>
 
-        <div class="algorithm-info" id="algorithmDescription">
-            <!-- Algorithm description will be dynamically updated -->
+        <div class="algo-description" id="cipherInfo">
         </div>
 
         <div class="visualization-container">
-            <div class="explanation-box" id="currentExplanation">
-                <!-- Dynamic explanations will appear here -->
+            <div class="info-panel" id="stepExplanation" style="display: none;">
             </div>
-            <div class="animation-container" id="animationArea">
-                <!-- Character blocks will be animated here -->
+            <div class="animation-container" id="animationDisplay">
             </div>
         </div>
 
-        <div class="tooltip">
-            <label for="textInput">Enter Text to Encrypt:</label>
-            <input type="text" id="textInput" placeholder="Enter your text">
-            <span class="tooltiptext">Type the message you want to encrypt</span>
+        <div class="hint-container">
+            <label for="textInput">Enter Text:</label>
+            <input type="text" id="textInput" placeholder="Type your message here">
+            <span class="hint-text">This is the text you want to encrypt or decrypt</span>
         </div>
 
-        <div id="shiftGroup" class="tooltip">
-            <label for="shiftValue">Shift Value (Caesar Cipher):</label>
-            <input type="number" id="shiftValue" min="1" max="25" value="3">
-            <span class="tooltiptext">Number of positions to shift each letter (1-25)</span>
+        <div id="caesarOptions" class="hint-container">
+            <label for="shiftAmount">Shift Amount (Caesar Cipher):</label>
+            <input type="number" id="shiftAmount" min="1" max="25" value="3">
+            <span class="hint-text">How many positions to shift each letter (1-25)</span>
         </div>
 
-        <div id="vigenereGroup" style="display:none;" class="tooltip">
-            <label for="vigenereKey">Encryption Key (Vigenère Cipher):</label>
-            <input type="text" id="vigenereKey" placeholder="Enter key">
-            <span class="tooltiptext">Keyword used for encryption (letters only)</span>
+        <div id="vigenereOptions" style="display:none;" class="hint-container">
+            <label for="secretKey">Secret Key (Vigenere Cipher):</label>
+            <input type="text" id="secretKey" placeholder="Enter your keyword">
+            <span class="hint-text">A word used to encrypt your message (letters only)</span>
         </div>
 
-        <div id="rsaGroup" style="display:none;" class="tooltip">
-            <label for="rsaPublicKey">Public Key (RSA):</label>
-            <input type="text" id="rsaPublicKey" placeholder="Enter public key (e, n)">
-            <span class="tooltiptext">Format: two numbers separated by comma (e,n)</span>
-        </div>
-
-        <div id="aesGroup" style="display:none;" class="tooltip">
-            <label for="aesKey">Encryption Key (AES):</label>
-            <input type="text" id="aesKey" maxlength="16" placeholder="Enter 16-character key">
-            <span class="tooltiptext">Must be exactly 16 characters long</span>
-        </div>
-
-        <div id="substitutionGroup" style="display:none;" class="tooltip">
-            <label for="substitutionKey">Substitution Key:</label>
-            <input type="text" id="substitutionKey" placeholder="Enter 26 unique letters" maxlength="26">
-            <span class="tooltiptext">Enter all 26 letters in your desired order (A-Z)</span>
+        <div id="substitutionOptions" style="display:none;" class="hint-container">
+            <label for="alphabetKey">Alphabet Key:</label>
+            <input type="text" id="alphabetKey" placeholder="Enter 26 different letters" maxlength="26">
+            <span class="hint-text">Your own alphabet order (all 26 letters)</span>
         </div>
 
         <div>
-            <button id="nextStepButton" class="tooltip">
+            <button id="stepButton" class="hint-container">
                 Next Step
-                <span class="tooltiptext">See the next step of encryption</span>
+                <span class="hint-text">See what happens next</span>
             </button>
-            <button id="fastForwardButton" class="tooltip">
-                Fast Forward
-                <span class="tooltiptext">Complete the encryption instantly</span>
+            <button id="completeButton" class="hint-container">
+                Complete All
+                <span class="hint-text">Skip to the end</span>
             </button>
         </div>
 
         <div>
-            <p id="stepInfo">Ready to encrypt!</p>
-            <div id="outputBox">Output will appear here</div>
+            <p id="progressInfo">Ready to start!</p>
+            <div id="resultBox">Results will show here</div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // DOM Element Selectors
+            // all of my HTML elements
             const textInput = document.getElementById('textInput');
-            const shiftValue = document.getElementById('shiftValue');
-            const vigenereKey = document.getElementById('vigenereKey');
-            const rsaPublicKey = document.getElementById('rsaPublicKey');
-            const aesKey = document.getElementById('aesKey');
-            const substitutionKey = document.getElementById('substitutionKey');
-            const nextStepButton = document.getElementById('nextStepButton');
-            const fastForwardButton = document.getElementById('fastForwardButton');
-            const stepInfo = document.getElementById('stepInfo');
-            const outputBox = document.getElementById('outputBox');
-            const algorithmButtons = document.querySelectorAll('.algorithm-btn');
-            const shiftGroup = document.getElementById('shiftGroup');
-            const vigenereGroup = document.getElementById('vigenereGroup');
-            const rsaGroup = document.getElementById('rsaGroup');
-            const aesGroup = document.getElementById('aesGroup');
-            const algorithmDescription = document.getElementById('algorithmDescription');
-            const currentExplanation = document.getElementById('currentExplanation');
-            const animationArea = document.getElementById('animationArea');
+            const shiftAmount = document.getElementById('shiftAmount');
+            const secretKey = document.getElementById('secretKey');
+            const alphabetKey = document.getElementById('alphabetKey');
+            const stepButton = document.getElementById('stepButton');
+            const completeButton = document.getElementById('completeButton');
+            const progressInfo = document.getElementById('progressInfo');
+            const resultBox = document.getElementById('resultBox');
+            const cipherButtons = document.querySelectorAll('.cipher-btn');
+            const switchButtons = document.querySelectorAll('.switch-btn');
+            const caesarOptions = document.getElementById('caesarOptions');
+            const vigenereOptions = document.getElementById('vigenereOptions');
+            const substitutionOptions = document.getElementById('substitutionOptions');
+            const cipherInfo = document.getElementById('cipherInfo');
+            const stepExplanation = document.getElementById('stepExplanation');
+            const animationDisplay = document.getElementById('animationDisplay');
 
-            // Add this after your DOM element declarations
-            substitutionKey.addEventListener('input', function(e) {
+            // My variables
+            let activeCipher = "caesar";
+            let activeMode = "encrypt";
+            let currentPosition = 0;
+            let myText = "";
+            let transformedChars = [];
+            let myKeyword = '';
+
+            // Mode switching
+            switchButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    activeMode = button.getAttribute('data-mode');
+                    switchButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    resetEverything();
+                    updateCipherInfo();
+                    updateTextLabels();
+                });
+            });
+
+            // Update text labels based on mode
+            function updateTextLabels() {
+                const modeText = activeMode.charAt(0).toUpperCase() + activeMode.slice(1);
+                textInput.placeholder = `Text to ${activeMode}`;
+                stepButton.querySelector('.hint-text').textContent = `See next step of ${activeMode}ion`;
+                completeButton.querySelector('.hint-text').textContent = `Finish ${activeMode}ion quickly`;
+                progressInfo.textContent = `Ready to ${activeMode}!`;
+            }
+
+            // Check if substitution key is allowed
+            alphabetKey.addEventListener('input', function(e) {
                 const value = e.target.value.toUpperCase().replace(/[^A-Z]/g, '');
-                if (value.length > 26) {
-                    e.target.value = value.slice(0, 26);
-                }
+                e.target.value = value.slice(0, 26);
                 
-                // Show validation status
                 if (value.length === 26) {
-                    if (isValidSubstitutionKey(value)) {
-                        e.target.style.borderColor = '#4CAF50'; // Green for valid
-                        stepInfo.textContent = 'Valid substitution key!';
+                    if (new Set(value).size === 26) {
+                        e.target.style.borderColor = '#4CAF50'; // Green means good
+                        progressInfo.textContent = 'Your key looks good!';
                     } else {
-                        e.target.style.borderColor = '#f44336'; // Red for invalid
-                        stepInfo.textContent = 'Key must contain each letter exactly once';
+                        e.target.style.borderColor = '#f44336'; // Red means bad
+                        progressInfo.textContent = 'Each letter must appear only once in your key';
                     }
                 } else {
-                    e.target.style.borderColor = '#ffa726'; // Orange for incomplete
-                    stepInfo.textContent = `Enter ${26 - value.length} more unique letters`;
+                    e.target.style.borderColor = '#ffa726'; // Orange means incomplete
+                    progressInfo.textContent = `Need ${26 - value.length} more unique letters`;
                 }
             });
 
-            // State Variables
-            let selectedAlgorithm = "caesar";
-            let currentStep = 0;
-            let originalText = "";
-            let encryptedChars = [];
-            let currentKey = '';
-
-            // Utility Functions
-            function showTooltip(element, text) {
-                const tooltip = document.createElement('div');
-                tooltip.className = 'tooltiptext';
-                tooltip.textContent = text;
-                element.appendChild(tooltip);
-            }
-
-            function updateExplanation(text) {
-                currentExplanation.style.display = 'block';
-                currentExplanation.innerHTML = text;
-                currentExplanation.scrollIntoView({ behavior: 'smooth' });
-            }
-
-            function animateCharacter(originalChar, newChar, details) {
-                const charBlock = document.createElement('div');
-                charBlock.className = 'char-block';
-                charBlock.innerHTML = `
-                    <div class="char-content">
-                        ${originalChar} → ${newChar}
-                    </div>
-                `;
-                animationArea.appendChild(charBlock);
-                
-                requestAnimationFrame(() => {
-                    charBlock.classList.add('shifted');
-                });
-
-                updateExplanation(`
-                    <h4>Encryption Step ${currentStep + 1}</h4>
-                    <p>${details}</p>
-                `);
-            }
-
-            // Algorithm Implementation Functions
-            const EncryptionAlgorithms = {
-                caesar: {
-                    encrypt: (text, shift) => {
-                        return text.split('').map(char => {
-                            if (char.match(/[a-z]/i)) {
-                                const base = char.toLowerCase() === char ? 97 : 65;
-                                return String.fromCharCode(
-                                    (char.charCodeAt(0) - base + shift) % 26 + base
-                                );
-                            }
-                            return char;
-                        }).join('');
-                    },
-                    getStepDescription: (char, shift) => {
-                        return `Shifting '${char}' by ${shift} positions`;
-                    }
-                },
-                vigenere: {
-                    encrypt: (text, key) => {
-                        key = key.toUpperCase().replace(/[^A-Z]/g, '');
-                        if (!key) key = 'KEY';
-                        let result = '';
-                        let keyIndex = 0;
-
-                        for (let i = 0; i < text.length; i++) {
-                            const char = text[i];
-                            if (char.match(/[a-z]/i)) {
-                                const shift = key[keyIndex].charCodeAt(0) - 65;
-                                const base = char.toLowerCase() === char ? 97 : 65;
-                                result += String.fromCharCode(
-                                    (char.charCodeAt(0) - base + shift) % 26 + base
-                                );
-                                keyIndex = (keyIndex + 1) % key.length;
-                            } else {
-                                result += char;
-                            }
-                        }
-                        return result;
-                    },
-                    getStepDescription: (char, key, keyIndex) => {
-                        return `Using key character '${key[keyIndex]}' to encrypt '${char}'`;
-                    }
-                },
-                substitution: {
-                    encrypt: (text, key) => {
-                    // Validate and standardize the key
-                    key = key.toUpperCase().replace(/[^A-Z]/g, '');
-                    if (key.length !== 26 || new Set(key).size !== 26) {
-                        throw new Error("Substitution key must contain all 26 letters exactly once");
-                    }
-
-                    // Create substitution map
-                    const substitutionMap = {};
-                    for (let i = 0; i < 26; i++) {
-                        substitutionMap[String.fromCharCode(65 + i)] = key[i];
-                        substitutionMap[String.fromCharCode(97 + i)] = key[i].toLowerCase();
-                    }
-
-                    return text.split('').map(char => {
-                        if (char.match(/[a-zA-Z]/)) {
-                            return substitutionMap[char];
-                        }
-                        return char;
-                    }).join('');
-                },
-                getStepDescription: (char, key) => {
-                    if (!char.match(/[a-zA-Z]/)) {
-                        return `Keeping non-alphabetic character '${char}' unchanged`;
-                    }
-                    const isUpperCase = char === char.toUpperCase();
-                    const index = (isUpperCase ? char.charCodeAt(0) - 65 : char.charCodeAt(0) - 97);
-                    const substitute = isUpperCase ? key[index] : key[index].toLowerCase();
-                    return `Substituting '${char}' with '${substitute}' according to the key`;
-                }
-            }
-                // ... Additional encryption algorithms ...
-            };
-
-            // Event Handlers
-            algorithmButtons.forEach(button => {
+            // Switch between different cipher types
+            cipherButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    const previousAlgorithm = selectedAlgorithm;
-                    selectedAlgorithm = button.getAttribute('data-algorithm');
-                    if (previousAlgorithm !== selectedAlgorithm){
-                        clearAnimationArea();
+                    const previousCipher = activeCipher;
+                    activeCipher = button.getAttribute('data-algorithm');
+                    if (previousCipher !== activeCipher){
+                        clearDisplay();
                     }
-                    algorithmButtons.forEach(btn => btn.classList.remove('active'));
+                    cipherButtons.forEach(btn => btn.classList.remove('active'));
                     button.classList.add('active');
 
-                    // Update UI elements
-                    shiftGroup.style.display = selectedAlgorithm === 'caesar' ? 'block' : 'none';
-                    vigenereGroup.style.display = selectedAlgorithm === 'vigenere' ? 'block' : 'none';
-                    rsaGroup.style.display = selectedAlgorithm === 'rsa' ? 'block' : 'none';
-                    aesGroup.style.display = selectedAlgorithm === 'aes' ? 'block' : 'none';
-                    substitutionGroup.style.display = selectedAlgorithm === 'substitution' ? 'block' : 'none';
+                    caesarOptions.style.display = activeCipher === 'caesar' ? 'block' : 'none';
+                    vigenereOptions.style.display = activeCipher === 'vigenere' ? 'block' : 'none';
+                    substitutionOptions.style.display = activeCipher === 'substitution' ? 'block' : 'none';
 
-                    updateAlgorithmDescription();
-                    resetVisualization();
+                    updateCipherInfo();
+                    resetEverything();
                 });
             });
 
-            textInput.addEventListener('input', () => {
-                if (animationArea.children.length > 0) {
-                    clearAnimationArea();
-                }
-            });
-
-            [shiftValue, vigenereKey, rsaPublicKey, aesKey, substitutionKey].forEach(input => {
+            // Reset when inputs change
+            [textInput, shiftAmount, secretKey, alphabetKey].forEach(input => {
                 input.addEventListener('input', () => {
-                    if (animationArea.children.length > 0) {
-                        clearAnimationArea();
+                    if (animationDisplay.children.length > 0) {
+                        clearDisplay();
                     }
                 });
             });
 
-            function resetVisualization() {
-                currentStep = 0;
-                clearAnimationArea();
+            // Reset everything
+            function resetEverything() {
+                currentPosition = 0;
+                clearDisplay();
             }
 
-            nextStepButton.addEventListener('click', () => {
-                if (!originalText || currentStep >= originalText.length) {
-                    if (!initEncryption()) return;
+            // Process next step when button clicked
+            stepButton.addEventListener('click', () => {
+                if (!myText || currentPosition >= myText.length) {
+                    if (!startProcess()) return;
                 }
-                processNextStep();
+                processStep();
             });
 
-            fastForwardButton.addEventListener('click', () => {
-                if (!initEncryption()) return;
+            // Complete all steps button
+            completeButton.addEventListener('click', () => {
+                if (!startProcess()) return;
     
-                // Process in smaller batches to prevent UI freezing
-                const batchSize = 10;
-                const totalSteps = originalText.length;
-                let currentBatch = 0;
-
-                function processNextBatch() {
-                    const start = currentBatch * batchSize;
-                    const end = start + batchSize;
-                
-                    processBatch(start, end, true);
-        
-                    currentBatch++;
-        
-                    if (start < totalSteps) {
-                        // Use requestAnimationFrame for smooth animation
-                        requestAnimationFrame(processNextBatch);
-                    }
+                while (currentPosition < myText.length) {
+                    processStep(true);
                 }
-
-                processNextBatch();
             });
 
-            function initEncryption() {
-                originalText = textInput.value.trim();
-                if (!originalText) {
-                    updateExplanation('Please enter text to encrypt!');
+            // Start the process
+            function startProcess() {
+                myText = textInput.value.trim();
+                if (!myText) {
+                    showExplanation(`Please enter some text to ${activeMode}!`);
                     return false;
                 }
 
-                clearAnimationArea();
-                currentStep = 0;
-                encryptedChars = originalText.split('');
+                clearDisplay();
+                currentPosition = 0;
+                transformedChars = myText.split('');
                 return true;
             }
 
-            function clearAnimationArea() {
-                // Clear the animation container
-                animationArea.innerHTML = '';
-    
-                // Reset the explanation box
-                currentExplanation.style.display = 'none';
-    
-                // Reset output box
-                outputBox.textContent = 'Output will appear here';
-    
-                // Reset step info
-                stepInfo.textContent = 'Ready to encrypt!';
+            // Clear the display
+            function clearDisplay() {
+                animationDisplay.innerHTML = '';
+                stepExplanation.style.display = 'none';
+                resultBox.textContent = 'Results will show here';
+                progressInfo.textContent = `Ready to ${activeMode}!`;
             }
 
-            function isValidSubstitutionKey(key) {
-                const cleanKey = key.toUpperCase().replace(/[^A-Z]/g, '');
-                if (cleanKey.length !== 26) {
-                    return false;
-                }
-                
-                const uniqueLetters = new Set(cleanKey);
-                if (uniqueLetters.size !== 26) {
-                    return false;
-                }
-                
-                // Check if all letters A-Z are present
-                for (let i = 0; i < 26; i++) {
-                    const letter = String.fromCharCode(65 + i);
-                    if (!cleanKey.includes(letter)) {
-                        return false;
-                    }
-                }
-                
-                return true;
+            // Show explanation
+            function showExplanation(text) {
+                stepExplanation.style.display = 'block';
+                stepExplanation.innerHTML = text;
             }
 
-            function processBatch(start, end, isFastForward) {
-                for (let i = start; i < Math.min(end, originalText.length); i++) {
-                    currentStep = i;
-                    processNextStep(isFastForward);
-                }
-            }
-
-
-            function processNextStep(isFastForward = false) {
+            // Process a step
+            function processStep(skipAnimation = false) {
                 try {
-                    const currentChar = encryptedChars[currentStep];
-                    let details = '';
+                    const thisChar = transformedChars[currentPosition];
+                    let explanation = '';
+                    let newChar = thisChar;
 
-                    switch (selectedAlgorithm) {
+                    switch (activeCipher) {
                         case 'caesar':
-                            const shift = parseInt(shiftValue.value);
-                            if (currentChar.match(/[a-z]/i)) {
-                                // Fix: Use currentChar instead of char for the comparison
-                                const base = currentChar.toLowerCase() === currentChar ? 97 : 65;
-                                const newChar = String.fromCharCode(
-                                    (currentChar.charCodeAt(0) - base + shift) % 26 + base
-                                );
-                                encryptedChars[currentStep] = newChar;
-                                details = `Caesar Cipher: Shifting '${currentChar}' by ${shift} positions`;
-        
-                                if (!isFastForward) {
-                                    animateCharacter(currentChar, newChar, details);
+                            const shift = parseInt(shiftAmount.value);
+                            if (thisChar.match(/[a-z]/i)) {
+                                const base = thisChar.toLowerCase() === thisChar ? 97 : 65;
+                                if (activeMode === 'encrypt') {
+                                    newChar = String.fromCharCode(
+                                        (thisChar.charCodeAt(0) - base + shift) % 26 + base
+                                    );
+                                    explanation = `Caesar Cipher: Moving '${thisChar}' forward by ${shift} letters`;
+                                } else {
+                                    newChar = String.fromCharCode(
+                                        (thisChar.charCodeAt(0) - base - shift + 26) % 26 + base
+                                    );
+                                    explanation = `Caesar Cipher: Moving '${thisChar}' backward by ${shift} letters`;
                                 }
+                                transformedChars[currentPosition] = newChar;
                             } else {
-                                // Handle non-alphabetic characters
-                                encryptedChars[currentStep] = currentChar;
-                                details = `Keeping non-alphabetic character '${currentChar}' unchanged`;
-        
-                                if (!isFastForward) {
-                                    animateCharacter(currentChar, currentChar, details);
-                                }
+                                explanation = `Not changing '${thisChar}' because it's not a letter`;
                             }
                             break;
 
                         case 'vigenere':
-                            if (!currentKey) {
-                                currentKey = vigenereKey.value.toUpperCase().replace(/[^A-Z]/g, '') || 'KEY';
+                            if (!myKeyword) {
+                                myKeyword = secretKey.value.toUpperCase().replace(/[^A-Z]/g, '') || 'KEY';
                             }
                             
-                            if (currentChar.match(/[a-z]/i)) {
-                                const keyChar = currentKey[currentStep % currentKey.length];
-                                const shift = keyChar.charCodeAt(0) - 65;
-                                const base = currentChar.toLowerCase() === currentChar ? 97 : 65;
-                                const newChar = String.fromCharCode(
-                                    (currentChar.charCodeAt(0) - base + shift) % 26 + base
-                                );
-                                encryptedChars[currentStep] = newChar;
-                                details = `Vigenère Cipher: Using key character '${keyChar}' (shift: ${shift}) on '${currentChar}'`;
+                            if (thisChar.match(/[a-z]/i)) {
+                                const keyLetter = myKeyword[currentPosition % myKeyword.length];
+                                const shift = keyLetter.charCodeAt(0) - 65;
+                                const base = thisChar.toLowerCase() === thisChar ? 97 : 65;
                                 
-                                if (!isFastForward) {
-                                    animateCharacter(currentChar, newChar, details);
-                                }
-                            }
-                            break;
-
-                        case 'rsa':
-                            const [e, n] = rsaPublicKey.value.split(',').map(Number);
-                            if (isNaN(e) || isNaN(n)) {
-                                throw new Error("Invalid RSA public key format. Use 'e,n' format.");
-                            }
-                            const charCode = currentChar.charCodeAt(0);
-                            const encrypted = BigInt(charCode) ** BigInt(e) % BigInt(n);
-                            encryptedChars[currentStep] = encrypted.toString();
-                            details = `RSA: Encrypting '${currentChar}' using public key (${e},${n})`;
-                            
-                            if (!isFastForward) {
-                                animateCharacter(currentChar, encrypted.toString(), details);
-                            }
-                            break;
-
-                        case 'aes':
-                            const key = aesKey.value;
-                            if (key.length !== 16) {
-                                throw new Error("AES key must be exactly 16 characters long");
-                            }
-                            // Simplified AES visualization (for educational purposes)
-                            const keyByte = key.charCodeAt(currentStep % 16);
-                            const plainByte = currentChar.charCodeAt(0);
-                            const encryptedByte = plainByte ^ keyByte; // Simple XOR for visualization
-                            encryptedChars[currentStep] = String.fromCharCode(encryptedByte);
-                            details = `AES (Simplified): XORing '${currentChar}' with key byte ${keyByte}`;
-                            
-                            if (!isFastForward) {
-                                animateCharacter(currentChar, String.fromCharCode(encryptedByte), details);
-                            }
-                            break;
-
-                            case 'substitution':
-                                const substitutionKeyValue = document.getElementById('substitutionKey').value.toUpperCase().replace(/[^A-Z]/g, '');
-                                console.log('Key:', substitutionKeyValue);
-                                console.log('Key length:', substitutionKeyValue.length);
-                                console.log('Unique characters:', new Set(substitutionKeyValue).size);
-                                
-                                // Debug the key content
-                                let letterCounts = {};
-                                for (let char of substitutionKeyValue) {
-                                    letterCounts[char] = (letterCounts[char] || 0) + 1;
-                                }
-                                console.log('Letter counts:', letterCounts);
-                                
-                                if (substitutionKeyValue.length !== 26) {
-                                    throw new Error(`Substitution key must be 26 letters long (current length: ${substitutionKeyValue.length})`);
-                                }
-                                
-                                if (new Set(substitutionKeyValue).size !== 26) {
-                                    throw new Error("Substitution key must contain each letter exactly once");
-                                }
-                                
-                                if (currentChar.match(/[a-zA-Z]/)) {
-                                    const isUpperCase = currentChar === currentChar.toUpperCase();
-                                    const index = (isUpperCase ? currentChar.charCodeAt(0) - 65 : currentChar.charCodeAt(0) - 97);
-                                    const newChar = isUpperCase ? substitutionKeyValue[index] : substitutionKeyValue[index].toLowerCase();
-                                    encryptedChars[currentStep] = newChar;
-                                    details = `Substitution Cipher: Replacing '${currentChar}' with '${newChar}'`;
-                                    
-                                    if (!isFastForward) {
-                                        animateCharacter(currentChar, newChar, details);
-                                    }
+                                if (activeMode === 'encrypt') {
+                                    newChar = String.fromCharCode(
+                                        (thisChar.charCodeAt(0) - base + shift) % 26 + base
+                                    );
+                                    explanation = `Vigenere Cipher: Using key letter '${keyLetter}' (shift: +${shift}) on '${thisChar}'`;
                                 } else {
-                                    encryptedChars[currentStep] = currentChar;
-                                    details = `Keeping non-alphabetic character '${currentChar}' unchanged`;
-                                    
-                                    if (!isFastForward) {
-                                        animateCharacter(currentChar, currentChar, details);
-                                    }
+                                    newChar = String.fromCharCode(
+                                        (thisChar.charCodeAt(0) - base - shift + 26) % 26 + base
+                                    );
+                                    explanation = `Vigenere Cipher: Using key letter '${keyLetter}' (shift: -${shift}) on '${thisChar}'`;
                                 }
-                                break;
+                                transformedChars[currentPosition] = newChar;
+                            } else {
+                                explanation = `Not changing '${thisChar}' because it's not a letter`;
+                            }
+                            break;
+
+                        case 'substitution':
+                            const myKey = alphabetKey.value.toUpperCase().replace(/[^A-Z]/g, '');
+                            
+                            if (myKey.length !== 26 || new Set(myKey).size !== 26) {
+                                throw new Error("Your key needs all 26 letters with no repeats");
+                            }
+                            
+                            if (thisChar.match(/[a-zA-Z]/)) {
+                                const isUpperCase = thisChar === thisChar.toUpperCase();
+                                
+                                if (activeMode === 'encrypt') {
+                                    const index = (isUpperCase ? thisChar.charCodeAt(0) - 65 : thisChar.charCodeAt(0) - 97);
+                                    newChar = isUpperCase ? myKey[index] : myKey[index].toLowerCase();
+                                    explanation = `Substitution Cipher: Changing '${thisChar}' to '${newChar}'`;
+                                } else {
+                                    const normalAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                                    const upperChar = thisChar.toUpperCase();
+                                    const index = myKey.indexOf(upperChar);
+                                    if (index === -1) {
+                                        throw new Error(`Can't find '${thisChar}' in your key`);
+                                    }
+                                    newChar = isUpperCase ? normalAlphabet[index] : normalAlphabet[index].toLowerCase();
+                                    explanation = `Substitution Cipher: Changing '${thisChar}' back to '${newChar}'`;
+                                }
+                                transformedChars[currentPosition] = newChar;
+                            } else {
+                                explanation = `Not changing '${thisChar}' because it's not a letter`;
+                            }
+                            break;
                     }
 
-                    // Update the output display
-                    outputBox.innerHTML = encryptedChars.map((char, index) => 
-                        index === currentStep ? 
+                    // Show the change
+                    if (!skipAnimation) {
+                        showTransformation(thisChar, newChar, explanation);
+                    }
+
+                    // Update the output
+                    resultBox.innerHTML = transformedChars.map((char, index) => 
+                        index === currentPosition ? 
                             `<span class="highlight">${char}</span>` : 
                             char
                     ).join('');
 
-                    currentStep++;
+                    currentPosition++;
 
-                    if (currentStep >= originalText.length) {
-                        stepInfo.textContent = "Encryption complete!";
-                        updateExplanation(`
-                            <h4>Encryption Complete!</h4>
-                            <p>Original text: ${originalText}</p>
-                            <p>Encrypted text: ${encryptedChars.join('')}</p>
+                    if (currentPosition >= myText.length) {
+                        progressInfo.textContent = `${activeMode.charAt(0).toUpperCase() + activeMode.slice(1)}ion all done!`;
+                        showExplanation(`
+                            <h4>${activeMode.charAt(0).toUpperCase() + activeMode.slice(1)}ion Complete!</h4>
+                            <p>Original text: ${myText}</p>
+                            <p>New text: ${transformedChars.join('')}</p>
                         `);
                     } else {
-                        stepInfo.textContent = `Step ${currentStep} of ${originalText.length}`;
+                        progressInfo.textContent = `Step ${currentPosition} of ${myText.length}`;
                     }
 
                 } catch (error) {
-                    stepInfo.textContent = error.message;
-                    updateExplanation(`<p class="error">${error.message}</p>`);
+                    progressInfo.textContent = error.message;
+                    showExplanation(`<p class="error">${error.message}</p>`);
                 }
             }
 
-            function updateAlgorithmDescription() {
+            // Show the transformation in the display
+            function showTransformation(oldChar, newChar, explanation) {
+                const charBlock = document.createElement('div');
+                charBlock.className = 'char-block';
+                charBlock.innerHTML = `${oldChar} → ${newChar}`;
+                animationDisplay.appendChild(charBlock);
+                
+                showExplanation(`
+                    <h4>${activeMode.charAt(0).toUpperCase() + activeMode.slice(1)}ion Step ${currentPosition + 1}</h4>
+                    <p>${explanation}</p>
+                `);
+            }
+
+            // Update cipher description
+            function updateCipherInfo() {
+                const action = activeMode === 'encrypt' ? 'encryption' : 'decryption';
                 const descriptions = {
                     'caesar': `
                         <h3>Caesar Cipher</h3>
-                        <p>A simple substitution cipher that shifts each letter in the plaintext by a fixed number of positions in the alphabet.</p>
+                        <p>This is a simple way to encrypt text by shifting each letter in the alphabet.</p>
                         <div class="algorithm-visualization">
                             <p>Example: With shift = 3</p>
-                            <pre>A → D    B → E    C → F    ...</pre>
+                            <p>For encryption: A -> D, B -> E, C -> F, etc.</p>
+                            <p>For decryption: D -> A, E -> B, F -> C, etc.</p>
                         </div>
-                        <p>Strength: Very weak (easily broken)</p>
-                        <p>Use case: Educational purposes only</p>
+                        <p>Security level: Very weak (easy to crack)</p>
+                        <p>Best used for: Learning about encryption</p>
                     `,
                     'vigenere': `
-                        <h3>Vigenère Cipher</h3>
-                        <p>A polyalphabetic substitution cipher using a keyword to determine the shift value for each letter.</p>
+                        <h3>Vigenere Cipher</h3>
+                        <p>This uses a keyword to create different shifts for each letter in your message.</p>
                         <div class="algorithm-visualization">
                             <p>Example: With key "KEY"</p>
+                            <p>For encryption:</p>
                             <pre>Key:    K E Y K E Y K E Y ...
 Text:   H E L L O W O R L ...
 Result: R I D V S U O V D ...</pre>
+                            <p>For decryption, we do the opposite.</p>
                         </div>
-                        <p>Strength: Historical importance, but still breakable</p>
-                        <p>Use case: Educational purposes, understanding polyalphabetic ciphers</p>
-                    `,
-                    'rsa': `
-                        <h3>RSA Encryption (Simplified)</h3>
-                        <p>A public-key cryptosystem that uses two keys: public for encryption and private for decryption.</p>
-                        <div class="algorithm-visualization">
-                            <p>Steps:</p>
-                            <ol>
-                                <li>Choose two prime numbers (p, q)</li>
-                                <li>Calculate n = p × q</li>
-                                <li>Choose public key e</li>
-                                <li>Calculate private key d</li>
-                            </ol>
-                        </div>
-                        <p>Strength: Very strong (when implemented properly)</p>
-                        <p>Use case: Secure communication, digital signatures</p>
-                    `,
-                    'aes': `
-                        <h3>AES (Advanced Encryption Standard)</h3>
-                        <p>A symmetric block cipher that processes data in blocks with keys of 128, 192, or 256 bits.</p>
-                        <div class="algorithm-visualization">
-                            <p>Main operations:</p>
-                            <ul>
-                                <li>SubBytes: Byte substitution</li>
-                                <li>ShiftRows: Row shifting</li>
-                                <li>MixColumns: Column mixing</li>
-                                <li>AddRoundKey: Key addition</li>
-                            </ul>
-                        </div>
-                        <p>Strength: Very strong (current standard)</p>
-                        <p>Use case: Secure data encryption</p>
+                        <p>Security level: Better than Caesar, but still breakable</p>
+                        <p>Best used for: Learning about advanced ciphers</p>
                     `,
                     'substitution': `
                         <h3>Substitution Cipher</h3>
-                        <p>A cipher that replaces each letter in the alphabet with a different letter according to a fixed mapping.</p>
+                        <p>This replaces each letter with a different letter using a special alphabet key.</p>
                         <div class="algorithm-visualization">
                             <p>Example key:</p>
                             <pre>A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-                    Q W E R T Y U I O P A S D F G H J K L Z X C V B N M</pre>
+Q W E R T Y U I O P A S D F G H J K L Z X C V B N M</pre>
+                            <p>For ${action}, we ${activeMode === 'encrypt' ? 'use' : 'reverse'} this mapping.</p>
                         </div>
-                        <p>Strength: Moderate (vulnerable to frequency analysis)</p>
-                        <p>Use case: Basic encryption, puzzles</p>
+                        <p>Security level: Medium (can be broken with letter frequency analysis)</p>
+                        <p>Best used for: Simple secret messages and puzzles</p>
                     `
                 };
 
-                algorithmDescription.innerHTML = descriptions[selectedAlgorithm] || '';
+                cipherInfo.innerHTML = descriptions[activeCipher] || '';
             }
 
-            // Initialize the page
-            updateAlgorithmDescription();
+            // Set everything up when the page loads
+            updateCipherInfo();
+            updateTextLabels();
         });
     </script>
 </body>
