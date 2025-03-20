@@ -1,0 +1,24 @@
+if (!myKeyword) {
+    myKeyword = secretKey.value.toUpperCase().replace(/[^A-Z]/g, '') || 'KEY';
+}
+    
+if (thisChar.match(/[a-z]/i)) {
+    const keyLetter = myKeyword[currentPosition % myKeyword.length];
+    const shift = keyLetter.charCodeAt(0) - 65;
+    const base = thisChar.toLowerCase() === thisChar ? 97 : 65;
+
+    if (activeMode === 'encrypt') {
+        newChar = String.fromCharCode(
+            (thisChar.charCodeAt(0) - base + shift) % 26 + base
+        );
+        explanation = `Vigenere Cipher: Using key letter '${keyLetter}' (shift: +${shift}) on '${thisChar}'`;
+    } else {
+        newChar = String.fromCharCode(
+            (thisChar.charCodeAt(0) - base - shift + 26) % 26 + base
+        );
+        explanation = `Vigenere Cipher: Using key letter '${keyLetter}' (shift: -${shift}) on '${thisChar}'`;
+      }
+      transformedChars[currentPosition] = newChar;
+    } else {
+        explanation = `Not changing '${thisChar}' because it's not a letter`;
+    }
