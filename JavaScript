@@ -1,0 +1,330 @@
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // all of my HTML elements
+            const textInput = document.getElementById('textInput');
+            const shiftAmount = document.getElementById('shiftAmount');
+            const secretKey = document.getElementById('secretKey');
+            const alphabetKey = document.getElementById('alphabetKey');
+            const stepButton = document.getElementById('stepButton');
+            const completeButton = document.getElementById('completeButton');
+            const progressInfo = document.getElementById('progressInfo');
+            const resultBox = document.getElementById('resultBox');
+            const cipherButtons = document.querySelectorAll('.cipher-btn');
+            const switchButtons = document.querySelectorAll('.switch-btn');
+            const caesarOptions = document.getElementById('caesarOptions');
+            const vigenereOptions = document.getElementById('vigenereOptions');
+            const substitutionOptions = document.getElementById('substitutionOptions');
+            const cipherInfo = document.getElementById('cipherInfo');
+            const stepExplanation = document.getElementById('stepExplanation');
+            const animationDisplay = document.getElementById('animationDisplay');
+
+            // My variables
+            let activeCipher = "caesar";
+            let activeMode = "encrypt";
+            let currentPosition = 0;
+            let myText = "";
+            let transformedChars = [];
+            let myKeyword = '';
+
+            // Mode switching
+            switchButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    activeMode = button.getAttribute('data-mode');
+                    switchButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    resetEverything();
+                    updateCipherInfo();
+                    updateTextLabels();
+                });
+            });
+
+            // Update text labels based on mode
+            function updateTextLabels() {
+                const modeText = activeMode.charAt(0).toUpperCase() + activeMode.slice(1);
+                textInput.placeholder = `Text to ${activeMode}`;
+                stepButton.querySelector('.hint-text').textContent = `See next step of ${activeMode}ion`;
+                completeButton.querySelector('.hint-text').textContent = `Finish ${activeMode}ion quickly`;
+                progressInfo.textContent = `Ready to ${activeMode}!`;
+            }
+
+            // Check if substitution key is allowed
+            alphabetKey.addEventListener('input', function(e) {
+                const value = e.target.value.toUpperCase().replace(/[^A-Z]/g, '');
+                e.target.value = value.slice(0, 26);
+                
+                if (value.length === 26) {
+                    if (new Set(value).size === 26) {
+                        e.target.style.borderColor = '#4CAF50'; // Green means good
+                        progressInfo.textContent = 'Your key looks good!';
+                    } else {
+                        e.target.style.borderColor = '#f44336'; // Red means bad
+                        progressInfo.textContent = 'Each letter must appear only once in your key';
+                    }
+                } else {
+                    e.target.style.borderColor = '#ffa726'; // Orange means incomplete
+                    progressInfo.textContent = `Need ${26 - value.length} more unique letters`;
+                }
+            });
+
+            // Switch between different cipher types
+            cipherButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const previousCipher = activeCipher;
+                    activeCipher = button.getAttribute('data-algorithm');
+                    if (previousCipher !== activeCipher){
+                        clearDisplay();
+                    }
+                    cipherButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    caesarOptions.style.display = activeCipher === 'caesar' ? 'block' : 'none';
+                    vigenereOptions.style.display = activeCipher === 'vigenere' ? 'block' : 'none';
+                    substitutionOptions.style.display = activeCipher === 'substitution' ? 'block' : 'none';
+
+                    updateCipherInfo();
+                    resetEverything();
+                });
+            });
+
+            // Reset when inputs change
+            [textInput, shiftAmount, secretKey, alphabetKey].forEach(input => {
+                input.addEventListener('input', () => {
+                    if (animationDisplay.children.length > 0) {
+                        clearDisplay();
+                    }
+                });
+            });
+
+            // Reset everything
+            function resetEverything() {
+                currentPosition = 0;
+                clearDisplay();
+            }
+
+            // Process next step when button clicked
+            stepButton.addEventListener('click', () => {
+                if (!myText || currentPosition >= myText.length) {
+                    if (!startProcess()) return;
+                }
+                processStep();
+            });
+
+            // Complete all steps button
+            completeButton.addEventListener('click', () => {
+                if (!startProcess()) return;
+    
+                while (currentPosition < myText.length) {
+                    processStep(true);
+                }
+            });
+
+            // Start the process
+            function startProcess() {
+                myText = textInput.value.trim();
+                if (!myText) {
+                    showExplanation(`Please enter some text to ${activeMode}!`);
+                    return false;
+                }
+
+                clearDisplay();
+                currentPosition = 0;
+                transformedChars = myText.split('');
+                return true;
+            }
+
+            // Clear the display
+            function clearDisplay() {
+                animationDisplay.innerHTML = '';
+                stepExplanation.style.display = 'none';
+                resultBox.textContent = 'Results will show here';
+                progressInfo.textContent = `Ready to ${activeMode}!`;
+            }
+
+            // Show explanation
+            function showExplanation(text) {
+                stepExplanation.style.display = 'block';
+                stepExplanation.innerHTML = text;
+            }
+
+            // Process a step
+            function processStep(skipAnimation = false) {
+                try {
+                    const thisChar = transformedChars[currentPosition];
+                    let explanation = '';
+                    let newChar = thisChar;
+
+                    switch (activeCipher) {
+                        case 'caesar':
+                            const shift = parseInt(shiftAmount.value);
+                            if (thisChar.match(/[a-z]/i)) {
+                                const base = thisChar.toLowerCase() === thisChar ? 97 : 65;
+                                if (activeMode === 'encrypt') {
+                                    newChar = String.fromCharCode(
+                                        (thisChar.charCodeAt(0) - base + shift) % 26 + base
+                                    );
+                                    explanation = `Caesar Cipher: Moving '${thisChar}' forward by ${shift} letters`;
+                                } else {
+                                    newChar = String.fromCharCode(
+                                        (thisChar.charCodeAt(0) - base - shift + 26) % 26 + base
+                                    );
+                                    explanation = `Caesar Cipher: Moving '${thisChar}' backward by ${shift} letters`;
+                                }
+                                transformedChars[currentPosition] = newChar;
+                            } else {
+                                explanation = `Not changing '${thisChar}' because it's not a letter`;
+                            }
+                            break;
+
+                        case 'vigenere':
+                            if (!myKeyword) {
+                                myKeyword = secretKey.value.toUpperCase().replace(/[^A-Z]/g, '') || 'KEY';
+                            }
+                            
+                            if (thisChar.match(/[a-z]/i)) {
+                                const keyLetter = myKeyword[currentPosition % myKeyword.length];
+                                const shift = keyLetter.charCodeAt(0) - 65;
+                                const base = thisChar.toLowerCase() === thisChar ? 97 : 65;
+                                
+                                if (activeMode === 'encrypt') {
+                                    newChar = String.fromCharCode(
+                                        (thisChar.charCodeAt(0) - base + shift) % 26 + base
+                                    );
+                                    explanation = `Vigenere Cipher: Using key letter '${keyLetter}' (shift: +${shift}) on '${thisChar}'`;
+                                } else {
+                                    newChar = String.fromCharCode(
+                                        (thisChar.charCodeAt(0) - base - shift + 26) % 26 + base
+                                    );
+                                    explanation = `Vigenere Cipher: Using key letter '${keyLetter}' (shift: -${shift}) on '${thisChar}'`;
+                                }
+                                transformedChars[currentPosition] = newChar;
+                            } else {
+                                explanation = `Not changing '${thisChar}' because it's not a letter`;
+                            }
+                            break;
+
+                        case 'substitution':
+                            const myKey = alphabetKey.value.toUpperCase().replace(/[^A-Z]/g, '');
+                            
+                            if (myKey.length !== 26 || new Set(myKey).size !== 26) {
+                                throw new Error("Your key needs all 26 letters with no repeats");
+                            }
+                            
+                            if (thisChar.match(/[a-zA-Z]/)) {
+                                const isUpperCase = thisChar === thisChar.toUpperCase();
+                                
+                                if (activeMode === 'encrypt') {
+                                    const index = (isUpperCase ? thisChar.charCodeAt(0) - 65 : thisChar.charCodeAt(0) - 97);
+                                    newChar = isUpperCase ? myKey[index] : myKey[index].toLowerCase();
+                                    explanation = `Substitution Cipher: Changing '${thisChar}' to '${newChar}'`;
+                                } else {
+                                    const normalAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                                    const upperChar = thisChar.toUpperCase();
+                                    const index = myKey.indexOf(upperChar);
+                                    if (index === -1) {
+                                        throw new Error(`Can't find '${thisChar}' in your key`);
+                                    }
+                                    newChar = isUpperCase ? normalAlphabet[index] : normalAlphabet[index].toLowerCase();
+                                    explanation = `Substitution Cipher: Changing '${thisChar}' back to '${newChar}'`;
+                                }
+                                transformedChars[currentPosition] = newChar;
+                            } else {
+                                explanation = `Not changing '${thisChar}' because it's not a letter`;
+                            }
+                            break;
+                    }
+
+                    // Show the change
+                    if (!skipAnimation) {
+                        showTransformation(thisChar, newChar, explanation);
+                    }
+
+                    // Update the output
+                    resultBox.innerHTML = transformedChars.map((char, index) => 
+                        index === currentPosition ? 
+                            `<span class="highlight">${char}</span>` : 
+                            char
+                    ).join('');
+
+                    currentPosition++;
+
+                    if (currentPosition >= myText.length) {
+                        progressInfo.textContent = `${activeMode.charAt(0).toUpperCase() + activeMode.slice(1)}ion all done!`;
+                        showExplanation(`
+                            <h4>${activeMode.charAt(0).toUpperCase() + activeMode.slice(1)}ion Complete!</h4>
+                            <p>Original text: ${myText}</p>
+                            <p>New text: ${transformedChars.join('')}</p>
+                        `);
+                    } else {
+                        progressInfo.textContent = `Step ${currentPosition} of ${myText.length}`;
+                    }
+
+                } catch (error) {
+                    progressInfo.textContent = error.message;
+                    showExplanation(`<p class="error">${error.message}</p>`);
+                }
+            }
+
+            // Show the transformation in the display
+            function showTransformation(oldChar, newChar, explanation) {
+                const charBlock = document.createElement('div');
+                charBlock.className = 'char-block';
+                charBlock.innerHTML = `${oldChar} → ${newChar}`;
+                animationDisplay.appendChild(charBlock);
+                
+                showExplanation(`
+                    <h4>${activeMode.charAt(0).toUpperCase() + activeMode.slice(1)}ion Step ${currentPosition + 1}</h4>
+                    <p>${explanation}</p>
+                `);
+            }
+
+            // Update cipher description
+            function updateCipherInfo() {
+                const action = activeMode === 'encrypt' ? 'encryption' : 'decryption';
+                const descriptions = {
+                    'caesar': `
+                        <h3>Caesar Cipher</h3>
+                        <p>This is a simple way to encrypt text by shifting each letter in the alphabet.</p>
+                        <div class="algorithm-visualization">
+                            <p>Example: With shift = 3</p>
+                            <p>For encryption: A -> D, B -> E, C -> F, etc.</p>
+                            <p>For decryption: D -> A, E -> B, F -> C, etc.</p>
+                        </div>
+                        <p>Security level: Very weak (easy to crack)</p>
+                        <p>Best used for: Learning about encryption</p>
+                    `,
+                    'vigenere': `
+                        <h3>Vigenere Cipher</h3>
+                        <p>This uses a keyword to create different shifts for each letter in your message.</p>
+                        <div class="algorithm-visualization">
+                            <p>Example: With key "KEY"</p>
+                            <p>For encryption:</p>
+                            <pre>Key:    K E Y K E Y K E Y ...
+Text:   H E L L O W O R L ...
+Result: R I D V S U O V D ...</pre>
+                            <p>For decryption, we do the opposite.</p>
+                        </div>
+                        <p>Security level: Better than Caesar, but still breakable</p>
+                        <p>Best used for: Learning about advanced ciphers</p>
+                    `,
+                    'substitution': `
+                        <h3>Substitution Cipher</h3>
+                        <p>This replaces each letter with a different letter using a special alphabet key.</p>
+                        <div class="algorithm-visualization">
+                            <p>Example key:</p>
+                            <pre>A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+Q W E R T Y U I O P A S D F G H J K L Z X C V B N M</pre>
+                            <p>For ${action}, we ${activeMode === 'encrypt' ? 'use' : 'reverse'} this mapping.</p>
+                        </div>
+                        <p>Security level: Medium (can be broken with letter frequency analysis)</p>
+                        <p>Best used for: Simple secret messages and puzzles</p>
+                    `
+                };
+
+                cipherInfo.innerHTML = descriptions[activeCipher] || '';
+            }
+
+            // Set everything up when the page loads
+            updateCipherInfo();
+            updateTextLabels();
+        });
+    </script>
