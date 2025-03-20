@@ -1,0 +1,27 @@
+const myKey = alphabetKey.value.toUpperCase().replace(/[^A-Z]/g, '');
+                            
+if (myKey.length !== 26 || new Set(myKey).size !== 26) {
+    throw new Error("Your key needs all 26 letters with no repeats");
+}
+
+if (thisChar.match(/[a-zA-Z]/)) {
+    const isUpperCase = thisChar === thisChar.toUpperCase();
+    
+    if (activeMode === 'encrypt') {
+        const index = (isUpperCase ? thisChar.charCodeAt(0) - 65 : thisChar.charCodeAt(0) - 97);
+        newChar = isUpperCase ? myKey[index] : myKey[index].toLowerCase();
+        explanation = `Substitution Cipher: Changing '${thisChar}' to '${newChar}'`;
+    } else {
+        const normalAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const upperChar = thisChar.toUpperCase();
+        const index = myKey.indexOf(upperChar);
+        if (index === -1) {
+            throw new Error(`Can't find '${thisChar}' in your key`);
+        }
+        newChar = isUpperCase ? normalAlphabet[index] : normalAlphabet[index].toLowerCase();
+        explanation = `Substitution Cipher: Changing '${thisChar}' back to '${newChar}'`;
+    }
+    transformedChars[currentPosition] = newChar;
+} else {
+    explanation = `Not changing '${thisChar}' because it's not a letter`;
+}
