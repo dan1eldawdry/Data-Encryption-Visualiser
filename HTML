@@ -1,1 +1,75 @@
+<div class="main-container">
+        <h2>Data Encryption/Decryption Visualiser</h2>
+        
+        <div class="switch-container">
+            <button class="switch-btn active" data-mode="encrypt">Encrypt</button>
+            <button class="switch-btn" data-mode="decrypt">Decrypt</button>
+        </div>
+        
+        <div>
+            <h3>Choose Cipher Type</h3>
+            <button class="cipher-btn active hint-container" data-algorithm="caesar">
+                Caesar Cipher
+                <span class="hint-text">Shift each letter forward or backward in the alphabet</span>
+            </button>
+            <button class="cipher-btn hint-container" data-algorithm="vigenere">
+                Vigenere Cipher
+                <span class="hint-text">Uses a keyword to create multiple shift values</span>
+            </button>
+            <button class="cipher-btn hint-container" data-algorithm="substitution">
+                Substitution Cipher
+                <span class="hint-text">Swaps each letter with a different one using a key</span>
+            </button>
+        </div>
+
+        <div class="algo-description" id="cipherInfo">
+        </div>
+
+        <div class="visualization-container">
+            <div class="info-panel" id="stepExplanation" style="display: none;">
+            </div>
+            <div class="animation-container" id="animationDisplay">
+            </div>
+        </div>
+
+        <div class="hint-container">
+            <label for="textInput">Enter Text:</label>
+            <input type="text" id="textInput" placeholder="Type your message here">
+            <span class="hint-text">This is the text you want to encrypt or decrypt</span>
+        </div>
+
+        <div id="caesarOptions" class="hint-container">
+            <label for="shiftAmount">Shift Amount (Caesar Cipher):</label>
+            <input type="number" id="shiftAmount" min="1" max="25" value="3">
+            <span class="hint-text">How many positions to shift each letter (1-25)</span>
+        </div>
+
+        <div id="vigenereOptions" style="display:none;" class="hint-container">
+            <label for="secretKey">Secret Key (Vigenere Cipher):</label>
+            <input type="text" id="secretKey" placeholder="Enter your keyword">
+            <span class="hint-text">A word used to encrypt your message (letters only)</span>
+        </div>
+
+        <div id="substitutionOptions" style="display:none;" class="hint-container">
+            <label for="alphabetKey">Alphabet Key:</label>
+            <input type="text" id="alphabetKey" placeholder="Enter 26 different letters" maxlength="26">
+            <span class="hint-text">Your own alphabet order (all 26 letters)</span>
+        </div>
+
+        <div>
+            <button id="stepButton" class="hint-container">
+                Next Step
+                <span class="hint-text">See what happens next</span>
+            </button>
+            <button id="completeButton" class="hint-container">
+                Complete All
+                <span class="hint-text">Skip to the end</span>
+            </button>
+        </div>
+
+        <div>
+            <p id="progressInfo">Ready to start!</p>
+            <div id="resultBox">Results will show here</div>
+        </div>
+    </div>
 
