@@ -1,8 +1,4 @@
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Encryption Visualizer</title>
-    <style>
+<style>
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
@@ -10,13 +6,15 @@
             padding: 20px;
             line-height: 1.6;
         }
-        .wrapper {
+
+        .main-container {
             background-color: #f4f4f4;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .algorithm-btn {
+
+        .cipher-btn {
             margin: 5px;
             padding: 10px;
             background-color: #e0e0e0;
@@ -25,11 +23,36 @@
             border-radius: 4px;
             transition: all 0.3s ease;
         }
-        .algorithm-btn.active {
+
+        .cipher-btn.active {
             background-color: #4CAF50;
             color: white;
-            transform: scale(1.05);
         }
+
+        .switch-container {
+            display: flex;
+            margin: 20px 0;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            width: 300px;
+        }
+
+        .switch-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .switch-btn.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
         input, button {
             margin: 10px 0;
             padding: 8px;
@@ -37,11 +60,13 @@
             border-radius: 4px;
             transition: border-color 0.3s ease;
         }
+
         input:focus {
             outline: none;
             border-color: #4CAF50;
         }
-        #outputBox {
+
+        #resultBox {
             background-color: #fff;
             border: 1px solid #ddd;
             padding: 15px;
@@ -49,11 +74,13 @@
             border-radius: 4px;
             min-height: 50px;
         }
-        .tooltip {
+
+        .hint-container {
             position: relative;
             display: inline-block;
         }
-        .tooltip .tooltiptext {
+
+        .hint-container .hint-text {
             visibility: hidden;
             width: 200px;
             background-color: #333;
@@ -67,77 +94,42 @@
             left: 50%;
             margin-left: -100px;
             opacity: 0;
-            transition: opacity 0.3s, visibility 0.3s;
+            transition: opacity 0.3s;
             font-size: 14px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .tooltip:hover .tooltiptext {
+
+        .hint-container:hover .hint-text {
             visibility: visible;
             opacity: 1;
         }
+
         .highlight {
-            background-color: #ffeb3b;
+            background-color: #f5ff3b;
             padding: 2px 4px;
             border-radius: 3px;
-            transition: background-color 0.3s;
-            animation: pulse 1s infinite;
         }
-        .explanationBox {
-            background-color: #e3f2fd;
+
+        .info-panel {
+            background-color: #cae5ce;
             padding: 15px;
             margin: 15px 0;
-            border-left: 4px solid #2196f3;
+            border-left: 4px solid #15da4a;
             border-radius: 4px;
-            display: none;
-            animation: slideIn 0.3s ease-out;
         }
-        .animationContainer {
-            height: 120px;
-            margin: 15px 0;
-            position: relative;
-            background-color: #fff;
-            border-radius: 4px;
-            padding: 10px;
-            overflow: hidden;
-        }
-        .charBlock {
+
+        .char-block {
             display: inline-block;
             padding: 12px;
             margin: 4px;
             background: #e0e0e0;
             border-radius: 4px;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .charBlock.shifted {
+
+        .char-block.changed {
             background: #81c784;
-            transform: translateY(-10px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-        @keyframes slideIn {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .stepCounter {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #4CAF50;
-            color: white;
-            padding: 10px;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            text-align: center;
-            line-height: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .algorithmInfo {
+
+        .algo-description {
             margin: 15px 0;
             padding: 15px;
             background: #fff;
@@ -145,4 +137,3 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
     </style>
-</head>
